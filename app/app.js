@@ -14,6 +14,7 @@
   const STATUS = {
     ouvert:   { label: "Ouvert",   cls: "st-ouvert" },
     en_cours: { label: "En cours", cls: "st-encours" },
+    bloque:   { label: "Bloqué",   cls: "st-bloque" },
     ferme:    { label: "Fermé",    cls: "st-ferme" },
     rejete:   { label: "Rejeté",   cls: "st-rejete" },
   };

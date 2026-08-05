@@ -75,6 +75,7 @@
 }
 .st-ouvert { background: var(--c-menager); }
 .st-encours { background: var(--c-emballage); }
+.st-bloque { background: #8a5a2b; }
 .st-ferme { background: var(--c-verre); }
 .st-rejete { background: var(--c-interdit); }
 

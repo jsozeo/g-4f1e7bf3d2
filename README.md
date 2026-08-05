@@ -51,7 +51,8 @@ Application de déclaration de dysfonctionnements, avec authentification et rôl
 faites par les *Row Level Security policies* de Postgres. Des *Edge Functions* Supabase
 ne seront ajoutées que plus tard, si l'on veut un écran d'admin de gestion des comptes.
 
-**États d'un cas :** `ouvert` · `en_cours` · `ferme` · `rejete`.
+**États d'un cas :** `ouvert` · `en_cours` · `bloque` · `ferme` · `rejete`.
+(`bloque` = en attente d'un tiers : artisan, pièce, devis.)
 **Rôles :** `user` (crée et modifie ses propres cas) · `admin` (voit/gère tout, change les statuts, gère les comptes).
 
 ### Mise en route
@@ -83,6 +84,31 @@ supabase/
 
 > ⚠️ La clé **`service_role`** ne doit JAMAIS être mise dans `app/`. Réserve-la aux
 > secrets d'une Edge Function le jour où tu ajouteras la gestion admin des comptes.
+
+### Récapitulatif périodique (toutes les 2 semaines)
+
+Un récapitulatif par utilisateur est calculé automatiquement et **stocké dans la table
+`digest_runs`** : chacun obtient ses propres cas, un admin obtient la vue globale.
+
+Contenu : total et répartition par état, nouveaux cas, cas clos ou rejetés sur la période,
+cas restant à traiter (triés du plus ancien au plus récent) et **alerte sur les cas sans
+activité** depuis plus de 14 jours.
+
+Planification : `pg_cron` déclenche `run_biweekly_digest()` chaque lundi à 06:00 UTC ;
+la fonction ne s'exécute que les semaines ISO paires, soit une fois tous les 14 jours.
+
+```sql
+-- Générer un récapitulatif immédiatement (test)
+select public.generate_digests();
+-- Consulter le dernier récapitulatif d'un utilisateur
+select payload from public.digest_runs order by created_at desc limit 1;
+```
+
+**⚠️ L'envoi par email n'est pas encore branché.** Le service d'email intégré de Supabase
+est réservé aux messages d'authentification et ne peut pas envoyer de contenu personnalisé.
+Pour l'envoi réel (phase 2), il faudra une Edge Function appelant un fournisseur
+(Resend, Brevo…) ou un SMTP : elle lira `digest_runs`, enverra les messages et renseignera
+`sent_at`. La logique de calcul restera inchangée.
 
 ## 🔒 Sécurité et infos sensibles
 
