@@ -12,3 +12,6 @@ secrets*
 .env.*
 **/.env
 
+# Config MCP locale (outillage poste de travail, pas le projet)
+.cursor/mcp.json
+
