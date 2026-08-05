@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#144f64" />
+  <title>Gestion des déchets — Résidence Messery</title>
+  <meta name="description" content="Consignes de tri et de dépôt des déchets pour la résidence de Messery." />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <a class="back" href="../index.html">← Accueil</a>
+      <p class="eyebrow">Consigne · Messery</p>
+      <h1>🗑️ Gestion des déchets</h1>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="notice">
+      <p class="callout">
+        <strong>Nouvelle organisation :</strong> plus de ramassage à domicile.
+        Tout se dépose désormais dans les conteneurs des
+        <strong>lieux dédiés</strong>.
+      </p>
+
+      <!-- Déchets ménagers -->
+      <section class="section menager">
+        <h2><span class="tag">Ménagers</span> Déchets ménagers</h2>
+        <p class="lead">En sacs de <b>50 litres maximum</b>, à apporter à l'un des lieux dédiés.</p>
+        <div class="places">
+          <div class="place"><span class="ic">📍</span> <span class="n">Plage de la Pointe</span></div>
+          <div class="place"><span class="ic">📍</span> <span class="n">Rond-point vers Douvaine</span></div>
+        </div>
+      </section>
+
+      <!-- Verre -->
+      <section class="section verre">
+        <h2><span class="tag">Verre</span> Verre</h2>
+        <p class="lead">En vrac → lieu dédié (Pointe ou Rond-Point).</p>
+      </section>
+
+      <!-- Emballages -->
+      <section class="section emballage">
+        <h2><span class="tag">Emballages</span> Emballages</h2>
+        <p class="lead">En vrac → lieu dédié (Pointe ou Rond-Point). Tout ensemble, c'est-à-dire :</p>
+        <ul class="list">
+          <li><span class="ic">🧴</span> <span><b>Plastique</b> — bouteilles, pots de yaourt, barquettes…</span></li>
+          <li><span class="ic">📰</span> <span><b>Papier / carton léger</b> — journaux, magazines…</span></li>
+          <li><span class="ic">🥫</span> <span><b>Métal</b> — boîtes de conserve, canettes, aérosols…</span></li>
+        </ul>
+      </section>
+
+      <!-- Interdits -->
+      <section class="section interdit">
+        <h2><span class="tag">À éviter</span> À NE PAS mettre</h2>
+        <ul class="list bad-list">
+          <li><span class="ic">🚫</span> Polystyrène</li>
+          <li><span class="ic">🚫</span> Objets en plastique (non-emballages)</li>
+          <li><span class="ic">🚫</span> Essuie-tout</li>
+          <li><span class="ic">🚫</span> Mouchoirs</li>
+        </ul>
+      </section>
+
+      <div class="source" id="src">
+        <a href="#" onclick="document.getElementById('src').classList.toggle('open');return false;">
+          📷 Voir la note originale
+        </a>
+        <img src="../images/gestion-dechets-photo.jpg" alt="Photo de la note manuscrite originale sur la gestion des déchets" loading="lazy" />
+      </div>
+    </div>
+
+    <footer>
+      Guide de la résidence · Messery ·
+      <a href="../index.html">Retour à l'accueil</a>
+    </footer>
+  </main>
+</body>
+</html>
