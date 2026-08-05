@@ -2,7 +2,7 @@
 import qrcode
 from qrcode.constants import ERROR_CORRECT_M
 
-BASE = "https://jsozeo.github.io/guide-residence-messery"
+BASE = "https://jsozeo.github.io/g-4f1e7bf3d2"
 
 TARGETS = {
     "accueil": f"{BASE}/",

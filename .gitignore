@@ -2,3 +2,10 @@
 *.log
 .venv/
 __pycache__/
+
+# Infos sensibles : JAMAIS en ligne. Tout ce qui est ici reste local.
+prive/
+*.prive.*
+*.secret.*
+secrets*
+

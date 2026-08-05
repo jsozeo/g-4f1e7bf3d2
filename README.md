@@ -5,7 +5,9 @@ Objectif : numériser les notes et consignes affichées un peu partout dans la m
 pour les rendre accessibles en ligne, facilement, via un **QR code** depuis un téléphone.
 
 ## 🌐 Site en ligne
-👉 **https://jsozeo.github.io/guide-residence-messery/**
+👉 **https://jsozeo.github.io/g-4f1e7bf3d2/**
+
+> 🔒 URL volontairement non devinable. Ne pas la publier ni la référencer publiquement.
 
 ## 📋 Notices disponibles
 | Notice | Page web | Source markdown |
@@ -39,3 +41,21 @@ pour les rendre accessibles en ligne, facilement, via un **QR code** depuis un t
 ## 📱 QR codes
 Les QR codes se trouvent dans `qrcodes/` et pointent vers le site en ligne.
 Il suffit de les imprimer et de les afficher dans la maison.
+
+## 🔒 Sécurité et infos sensibles
+
+Ce site est **public** (GitHub Pages l'est toujours). La protection repose sur :
+- une **URL non devinable** (nom de dépôt aléatoire) ;
+- `noindex` + `robots.txt` → non référencé par les moteurs de recherche ;
+- aucune mention identifiante dans les métadonnées / la description du dépôt.
+
+**⚠️ Ne JAMAIS mettre en ligne** : codes d'alarme, codes de portail/boîte à clés,
+codes wifi sensibles, coordonnées privées, numéros de contrats, etc.
+
+Convention pour ces infos :
+- Tout fichier dans `prive/`, ou nommé `*.prive.*` / `*.secret.*`, est **ignoré par git**
+  (voir `.gitignore`) et reste donc **uniquement sur ton ordinateur**.
+- Pour partager un secret ponctuel, préfère un gestionnaire de mots de passe
+  (partage de note chiffrée), un message éphémère, ou l'affichage physique dans la maison.
+- Si un vrai accès protégé en ligne devient nécessaire, passer par une authentification
+  devant le site (ex. Cloudflare Access), plutôt que de publier le secret en clair.
