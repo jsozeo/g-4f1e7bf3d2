@@ -8,4 +8,7 @@ prive/
 *.prive.*
 *.secret.*
 secrets*
+.env
+.env.*
+**/.env
 

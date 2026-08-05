@@ -42,6 +42,48 @@ pour les rendre accessibles en ligne, facilement, via un **QR code** depuis un t
 Les QR codes se trouvent dans `qrcodes/` et pointent vers le site en ligne.
 Il suffit de les imprimer et de les afficher dans la maison.
 
+## 🔧 Case management (signalements) — Supabase
+
+Application de déclaration de dysfonctionnements, avec authentification et rôles.
+
+**Architecture :** front statique (GitHub Pages) + `supabase-js` (navigateur) → Supabase
+(Auth + Postgres + RLS). **Aucun serveur/Lambda à héberger.** Les autorisations sont
+faites par les *Row Level Security policies* de Postgres. Des *Edge Functions* Supabase
+ne seront ajoutées que plus tard, si l'on veut un écran d'admin de gestion des comptes.
+
+**États d'un cas :** `ouvert` · `en_cours` · `ferme` · `rejete`.
+**Rôles :** `user` (crée et modifie ses propres cas) · `admin` (voit/gère tout, change les statuts, gère les comptes).
+
+### Mise en route
+1. Créer un projet sur [supabase.com](https://supabase.com) (région EU recommandée).
+2. **SQL Editor** → coller et exécuter [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+3. **Project Settings → API** → copier *Project URL* et *anon public key*
+   dans [`app/supabase-config.js`](app/supabase-config.js).
+4. **Authentication → URL Configuration** → ajouter l'URL du site
+   (`https://jsozeo.github.io/g-4f1e7bf3d2/app/index.html`) aux *Redirect URLs*.
+5. Se connecter une 1re fois (lien magique), puis se promouvoir admin via SQL :
+   ```sql
+   update public.profiles set role = 'admin'
+   where id = (select id from auth.users where email = 'toi@exemple.com');
+   ```
+6. Inviter les autres utilisateurs depuis **Authentication → Users → Invite**.
+
+### Fichiers de l'app
+```
+app/
+├── login.html          # Connexion par lien magique
+├── index.html          # Liste des signalements (filtrée par RLS)
+├── case.html           # Créer / consulter / modifier un cas + commentaires
+├── app.js              # Client Supabase + helpers (auth, CRUD, storage)
+├── app.css             # Styles de l'app
+└── supabase-config.js  # URL + anon key (À REMPLIR)
+supabase/
+└── migrations/0001_init.sql   # Schéma + RLS + triggers + bucket photos
+```
+
+> ⚠️ La clé **`service_role`** ne doit JAMAIS être mise dans `app/`. Réserve-la aux
+> secrets d'une Edge Function le jour où tu ajouteras la gestion admin des comptes.
+
 ## 🔒 Sécurité et infos sensibles
 
 Ce site est **public** (GitHub Pages l'est toujours). La protection repose sur :
