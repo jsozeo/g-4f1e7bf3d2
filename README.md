@@ -42,57 +42,38 @@ pour les rendre accessibles en ligne, facilement, via un **QR code** depuis un t
 Les QR codes se trouvent dans `qrcodes/` et pointent vers le site en ligne.
 Il suffit de les imprimer et de les afficher dans la maison.
 
-## 🔐 Accès au guide (authentification)
+## 🔐 Accès au guide (mot de passe familial)
 
-Toutes les fiches et l'accueil sont **protégés** : sans session Supabase,
-le navigateur est renvoyé vers `/auth/login.html`.
-
-### Deep link (QR codes)
-Les QR codes ne pointent plus directement sur une fiche, mais vers :
+Plus de comptes utilisateurs. Une **popup** demande l'identifiant et le
+mot de passe définis dans `.venv/.env` :
 
 ```
-/auth/login.html?next=/notices/gaz.html
+===CONNEXION===
+LOGIN=messery
+PASSWORD=……
 ```
 
-- **Pas encore connecté** → email + mot de passe, *ou* lien magique.
-  Le magic link emporte le `next` dans `emailRedirectTo` : après clic,
-  tu arrives sur la fiche scannée.
-- **Déjà connecté sur ce téléphone** → redirection immédiate vers `next`,
-  sans nouvel email.
+Seul un **hash** est publié (`assets/gate-config.js`, généré par
+`make_gate_config.py`). Après succès, le téléphone reste déverrouillé
+(`localStorage`) : les prochains QR s'ouvrent sans re-saisie.
 
-### Session (plusieurs QR sans se re-logger)
-Oui. Supabase stocke la session en **`localStorage`** (pas un cookie HTTP
-classique) pour l'origine `jsozeo.github.io`. Toutes les pages du site
-partagent la même session jusqu'à déconnexion ou expiration du refresh token.
-
-### Limite importante (GitHub Pages)
-La protection est **côté navigateur** (JS). Les fichiers HTML/images restent
-techniquement téléchargeables si l'URL est connue. Suffisant pour un usage
-familial via QR ; pour un verrou serveur, il faudrait Cloudflare Access ou
-un hébergement avec auth.
-
-### Redirect URLs à autoriser dans Supabase
-`Authentication → URL Configuration` doit inclure au minimum :
-
-```
-https://jsozeo.github.io/g-4f1e7bf3d2/**
+```bash
+# Après chaque changement de LOGIN/PASSWORD :
+.venv/bin/python make_gate_config.py
+git add assets/gate-config.js && git commit && git push
 ```
 
-### Mot de passe
-Les comptes invités n'ont souvent **pas** de mot de passe au départ.
-Le lien magique fonctionne toujours. Pour le login MDP : Dashboard →
-Authentication → Users → l'utilisateur → Set password.
+## 🔧 Case management (signalements) — Supabase
 
-Application de déclaration de dysfonctionnements, avec authentification et rôles.
+Sans comptes : chaque ticket demande **qui signale** (texte libre), et
+chaque changement de statut demande **qui le change**. Le prénom est
+mémorisé sur le téléphone pour les prochaines fois.
 
-**Architecture :** front statique (GitHub Pages) + `supabase-js` (navigateur) → Supabase
-(Auth + Postgres + RLS). **Aucun serveur/Lambda à héberger.** Les autorisations sont
-faites par les *Row Level Security policies* de Postgres. Des *Edge Functions* Supabase
-ne seront ajoutées que plus tard, si l'on veut un écran d'admin de gestion des comptes.
+**Architecture :** front statique (GitHub Pages) + `supabase-js` → Supabase
+(Postgres). Le mot de passe du site protège l'UI ; l'API reste accessible
+avec la clé anon (usage familial).
 
 **États d'un cas :** `ouvert` · `en_cours` · `bloque` · `ferme` · `rejete`.
-(`bloque` = en attente d'un tiers : artisan, pièce, devis.)
-**Rôles :** `user` (crée et modifie ses propres cas) · `admin` (voit/gère tout, change les statuts, gère les comptes).
 
 ### Mise en route
 1. Créer un projet sur [supabase.com](https://supabase.com) (région EU recommandée).
