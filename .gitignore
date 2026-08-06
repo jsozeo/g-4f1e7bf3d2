@@ -15,3 +15,17 @@ secrets*
 # Config MCP locale (outillage poste de travail, pas le projet)
 .cursor/mcp.json
 
+# PDF sources des notices : ~190 Mo de photos. Seules les images web
+# compressées de images/web/ sont publiées. Les sources restent locales
+# (make_web_images.py les régénère à l'identique).
+images/*.pdf
+images/*.xlsx
+images/gestion-dechets-source.png
+
+# Rendus haute définition de travail
+.work/
+
+# Document familial (histoire de la famille, composition de la SCI, parts) :
+# données personnelles et patrimoniales, hors site public par décision explicite.
+images/web/reperes-historiques*
+

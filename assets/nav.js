@@ -6,10 +6,33 @@
 
   var base = (document.currentScript && document.currentScript.dataset.base) || ".";
 
+  /* Un objet { group: … } insère un intertitre dans le tiroir. */
   var LINKS = [
     { href: "/index.html", label: "Accueil du guide", icon: "🏠" },
-    { href: "/app/index.html", label: "Signalements", icon: "🔧" },
+    { href: "/app/index.html", label: "Signaler un problème", icon: "🔧" },
+
+    { group: "Arrivée & départ" },
+    { href: "/notices/ouverture-maison.html", label: "Ouvrir la maison", icon: "🔑" },
+    { href: "/notices/fermeture-maison.html", label: "Fermer la maison", icon: "🚪" },
+    { href: "/notices/eau.html", label: "Réseaux d'eau", icon: "💧" },
+
+    { group: "Chauffage" },
+    { href: "/notices/chauffage-electrique.html", label: "Radiateurs", icon: "🌡️" },
+    { href: "/notices/poele-bois.html", label: "Poêle à bois", icon: "🔥" },
+    { href: "/notices/gaz.html", label: "Le gaz", icon: "🔵" },
+
+    { group: "Déchets & jardin" },
     { href: "/notices/gestion-dechets.html", label: "Gestion des déchets", icon: "🗑️" },
+    { href: "/notices/dechetterie-acces.html", label: "Accès à la déchetterie", icon: "🎫" },
+    { href: "/notices/dechetterie-verte.html", label: "Déchetterie verte", icon: "🍃" },
+    { href: "/notices/compost.html", label: "Le compost", icon: "🌱" },
+    { href: "/notices/entretien-abords.html", label: "Entretien des abords", icon: "🌳" },
+
+    { group: "Intendance" },
+    { href: "/notices/plan-maison.html", label: "Plan de la maison", icon: "🏠" },
+    { href: "/notices/quantites-alimentaires.html", label: "Quantités alimentaires", icon: "🍽️" },
+    { href: "/notices/lits-bebe.html", label: "Lits bébé", icon: "🛏️" },
+    { href: "/notices/electricite.html", label: "Tableaux électriques", icon: "⚡" },
   ];
 
   function build() {
@@ -36,6 +59,10 @@
       '<div class="head"><span class="t">Résidence · Messery</span>' +
       '<button type="button" aria-label="Fermer le menu">&times;</button></div>';
     LINKS.forEach(function (l) {
+      if (l.group) {
+        html += '<p class="grp">' + l.group + "</p>";
+        return;
+      }
       var active = current.slice(-l.href.length) === l.href ? " current" : "";
       html +=
         '<a class="' + active.trim() + '" href="' + base + l.href + '">' +

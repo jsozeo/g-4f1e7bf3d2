@@ -14,6 +14,12 @@
   --c-verre: #2f9e44;
   --c-emballage: #e0a80d;
   --c-interdit: #d64545;
+
+  --c-chauffage: #e07a3f;
+  --c-bois: #8a5a2b;
+  --c-gaz: #2f6fb0;
+  --c-eau: #1c9ab0;
+  --c-intendance: #8a5ea8;
 }
 
 * { box-sizing: border-box; }
@@ -157,6 +163,16 @@ body {
 .section.emballage .tag { background: var(--c-emballage); }
 .section.interdit { border-top-color: var(--c-interdit); }
 .section.interdit .tag { background: var(--c-interdit); }
+.section.chauffage { border-top-color: var(--c-chauffage); }
+.section.chauffage .tag { background: var(--c-chauffage); }
+.section.bois { border-top-color: var(--c-bois); }
+.section.bois .tag { background: var(--c-bois); }
+.section.gaz { border-top-color: var(--c-gaz); }
+.section.gaz .tag { background: var(--c-gaz); }
+.section.eau { border-top-color: var(--c-eau); }
+.section.eau .tag { background: var(--c-eau); }
+.section.intendance { border-top-color: var(--c-intendance); }
+.section.intendance .tag { background: var(--c-intendance); }
 
 .list { list-style: none; margin: 0; padding: 0; }
 .list li {
@@ -189,6 +205,95 @@ body {
 
 .bad-list li { color: #7a2a2a; }
 
+/* Marches à suivre numérotées */
+.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding: 9px 0 9px 36px;
+  border-bottom: 1px solid var(--line);
+}
+.steps li:last-child { border-bottom: none; }
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Repères / commandes : terme + explication */
+.kv { margin: 0; }
+.kv > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.94rem;
+}
+.kv > div:last-child { border-bottom: none; }
+.kv dt { font-weight: 700; color: var(--brand-dark); flex: none; min-width: 104px; }
+.kv dd { margin: 0; flex: 1 1 200px; }
+
+/* Avertissement */
+.warn {
+  background: #fdecec;
+  border: 1px solid #f5c2c2;
+  border-left: 5px solid var(--c-interdit);
+  border-radius: 12px;
+  padding: 13px 15px;
+  margin: 14px 0 0;
+  font-size: 0.94rem;
+}
+.warn strong { color: #a12525; }
+
+/* Illustration affichée directement */
+.figure { margin: 14px 0 0; }
+.figure img {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+.figure figcaption {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* Tableaux de données (quantités, relevés) */
+.tablewrap { overflow-x: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+/* Les tableaux larges défilent horizontalement plutôt que d'écraser
+   la colonne des libellés sur un écran de téléphone. */
+.data { border-collapse: collapse; min-width: 100%; font-size: 0.88rem; }
+.data th, .data td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+.data th { background: #eef4f7; color: var(--brand-dark); font-weight: 700; }
+.data th, .data th:first-child, .data td:first-child { white-space: nowrap; }
+.data td.num { text-align: right; white-space: nowrap; }
+
+/* Titre de catégorie sur l'accueil */
+.cat {
+  grid-column: 1 / -1;
+  margin: 12px 0 -4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+.cat:first-child { margin-top: 0; }
+
 /* Source / photo */
 .source {
   margin-top: 8px;
@@ -204,6 +309,8 @@ body {
   display: none;
 }
 .source.open img { display: inline-block; }
+/* Scans en paysage ou multipages : laisser toute la largeur disponible. */
+.source.wide img { max-width: 100%; }
 
 footer {
   text-align: center;
@@ -269,6 +376,18 @@ footer a { color: var(--brand); }
   padding: 16px 0;
 }
 .navdrawer.open { transform: translateX(0); }
+/* Le menu liste toutes les notices : il doit pouvoir défiler. */
+.navdrawer { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+.navdrawer .grp {
+  margin: 14px 0 2px;
+  padding: 0 18px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
 
 .navdrawer .head {
   display: flex;
