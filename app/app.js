@@ -36,26 +36,44 @@
     return data || { id: session.user.id, role: "user" };
   }
 
-  // Redirige vers la page de login si non connecté. Renvoie le profil sinon.
+  // Redirige vers la page de login centrale si non connecté. Renvoie le profil sinon.
   async function requireAuth() {
     const session = await getSession();
     if (!session) {
-      window.location.href = "login.html";
+      const next = "/app/" + (location.pathname.split("/").pop() || "index.html") + location.search;
+      if (window.SiteAuth) {
+        window.location.href = window.SiteAuth.loginUrl(next);
+      } else {
+        window.location.href = "../auth/login.html?next=" + encodeURIComponent(next);
+      }
       return null;
     }
     return await getProfile();
   }
 
   async function signInWithEmail(email) {
+    const next = "/app/index.html";
+    if (window.SiteAuth) {
+      return window.SiteAuth.signInWithMagicLink(email, next);
+    }
     return sb.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin + window.location.pathname.replace(/login\.html$/, "index.html") },
+      options: {
+        emailRedirectTo:
+          window.location.origin +
+          window.location.pathname.replace(/\/app\/.*$/, "/auth/login.html") +
+          "?next=" + encodeURIComponent(next),
+      },
     });
   }
 
   async function signOut() {
     await sb.auth.signOut();
-    window.location.href = "login.html";
+    if (window.SiteAuth) {
+      window.location.href = window.SiteAuth.loginUrl("/app/index.html");
+    } else {
+      window.location.href = "../auth/login.html?next=" + encodeURIComponent("/app/index.html");
+    }
   }
 
   // ---------- Cases (CRUD) ----------

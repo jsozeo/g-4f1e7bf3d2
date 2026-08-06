@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="auth-pending">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +9,7 @@
   <meta name="referrer" content="no-referrer" />
   <title>Le compost</title>
   <link rel="stylesheet" href="../assets/style.css" />
+  <style>html.auth-pending body{visibility:hidden}</style>
 </head>
 <body>
   <header class="topbar">
@@ -88,6 +89,9 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/supabase-config.js"></script>
+  <script src="../assets/auth.js" data-base=".." data-gate="1"></script>
   <script src="../assets/nav.js" data-base=".."></script>
 </body>
 </html>

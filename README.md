@@ -42,7 +42,46 @@ pour les rendre accessibles en ligne, facilement, via un **QR code** depuis un t
 Les QR codes se trouvent dans `qrcodes/` et pointent vers le site en ligne.
 Il suffit de les imprimer et de les afficher dans la maison.
 
-## 🔧 Case management (signalements) — Supabase
+## 🔐 Accès au guide (authentification)
+
+Toutes les fiches et l'accueil sont **protégés** : sans session Supabase,
+le navigateur est renvoyé vers `/auth/login.html`.
+
+### Deep link (QR codes)
+Les QR codes ne pointent plus directement sur une fiche, mais vers :
+
+```
+/auth/login.html?next=/notices/gaz.html
+```
+
+- **Pas encore connecté** → email + mot de passe, *ou* lien magique.
+  Le magic link emporte le `next` dans `emailRedirectTo` : après clic,
+  tu arrives sur la fiche scannée.
+- **Déjà connecté sur ce téléphone** → redirection immédiate vers `next`,
+  sans nouvel email.
+
+### Session (plusieurs QR sans se re-logger)
+Oui. Supabase stocke la session en **`localStorage`** (pas un cookie HTTP
+classique) pour l'origine `jsozeo.github.io`. Toutes les pages du site
+partagent la même session jusqu'à déconnexion ou expiration du refresh token.
+
+### Limite importante (GitHub Pages)
+La protection est **côté navigateur** (JS). Les fichiers HTML/images restent
+techniquement téléchargeables si l'URL est connue. Suffisant pour un usage
+familial via QR ; pour un verrou serveur, il faudrait Cloudflare Access ou
+un hébergement avec auth.
+
+### Redirect URLs à autoriser dans Supabase
+`Authentication → URL Configuration` doit inclure au minimum :
+
+```
+https://jsozeo.github.io/g-4f1e7bf3d2/**
+```
+
+### Mot de passe
+Les comptes invités n'ont souvent **pas** de mot de passe au départ.
+Le lien magique fonctionne toujours. Pour le login MDP : Dashboard →
+Authentication → Users → l'utilisateur → Set password.
 
 Application de déclaration de dysfonctionnements, avec authentification et rôles.
 
