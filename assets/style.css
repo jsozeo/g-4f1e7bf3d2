@@ -312,6 +312,24 @@ body {
 /* Scans en paysage ou multipages : laisser toute la largeur disponible. */
 .source.wide img { max-width: 100%; }
 
+.download {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 18px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: inherit;
+}
+.download:hover { border-color: var(--brand); }
+.download .ic { font-size: 1.6rem; line-height: 1; }
+.download .t { font-weight: 700; color: var(--brand-dark); }
+.download .d { color: var(--ink-soft); font-size: 0.85rem; }
+
 footer {
   text-align: center;
   color: var(--ink-soft);
