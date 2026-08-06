@@ -1,15 +1,14 @@
-/* Accès familial : popup login/mdp, sans comptes Supabase.
+/* Accès familial : popup mot de passe seule, sans comptes.
  *
- * - Identifiants dans .venv/.env → hash publié via make_gate_config.py
+ * - Mot de passe dans .venv/.env → hash publié via make_gate_config.py
  * - Session dans localStorage : un seul déverrouillage pour tous les QR
- * - ?next=/notices/… éventuel repris après succès (deep link)
  */
 (function () {
   "use strict";
 
   var script = document.currentScript;
   var gate = script && script.dataset.gate === "1";
-  var STORAGE_KEY = "micote_gate_v1";
+  var STORAGE_KEY = "micote_gate_v2";
 
   function siteOrigin() {
     var path = location.pathname;
@@ -64,7 +63,6 @@
     var s = document.createElement("style");
     s.id = "gate-styles";
     s.textContent =
-      /* Tant que le gate est ouvert : masquer TOUT le contenu du site. */
       "html.auth-pending body > *:not(.gate-overlay){visibility:hidden !important}" +
       "html.auth-pending .gate-overlay{visibility:visible !important}" +
       ".gate-overlay{position:fixed;inset:0;z-index:100;" +
@@ -91,33 +89,28 @@
     overlay.innerHTML =
       '<div class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gate-title">' +
       '<h2 id="gate-title">Accès au guide</h2>' +
-      "<p>Identifiant et mot de passe de la maison (une seule fois sur ce téléphone).</p>" +
-      '<label for="gate-login">Identifiant</label>' +
-      '<input id="gate-login" type="text" autocomplete="username" />' +
+      "<p>Mot de passe de la maison (une seule fois sur ce téléphone).</p>" +
       '<label for="gate-pass">Mot de passe</label>' +
-      '<input id="gate-pass" type="password" autocomplete="current-password" />' +
+      '<input id="gate-pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" />' +
       '<div class="err" id="gate-err"></div>' +
       '<button type="button" id="gate-ok">Entrer</button>' +
       "</div>";
     document.body.appendChild(overlay);
-    // Ne PAS appeler reveal() ici : le fond du site reste masqué.
 
-    var loginEl = overlay.querySelector("#gate-login");
     var passEl = overlay.querySelector("#gate-pass");
     var errEl = overlay.querySelector("#gate-err");
-    loginEl.focus();
+    passEl.focus();
 
     async function tryUnlock() {
       errEl.textContent = "";
-      var login = (loginEl.value || "").trim().toLowerCase();
       var pass = passEl.value || "";
-      if (!login || !pass) {
-        errEl.textContent = "Renseigne les deux champs.";
+      if (!pass) {
+        errEl.textContent = "Saisis le mot de passe.";
         return;
       }
-      var token = await sha256Hex(login + "|" + pass);
+      var token = await sha256Hex(pass);
       if (!cfg.token || token !== cfg.token) {
-        errEl.textContent = "Identifiant ou mot de passe incorrect.";
+        errEl.textContent = "Mot de passe incorrect.";
         passEl.select();
         return;
       }
@@ -130,22 +123,14 @@
     passEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter") tryUnlock();
     });
-    loginEl.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") passEl.focus();
-    });
   }
 
   function afterUnlock() {
     var params = new URLSearchParams(location.search);
     var next = sanitizeNext(params.get("next"));
-    // Sur la page d'auth dédiée, toujours aller vers next (ou l'accueil).
     if (location.pathname.indexOf("/auth/") >= 0) {
       location.replace(siteOrigin() + (next || "/index.html"));
       return;
-    }
-    // Sur une fiche : si un next est présent (ancien QR), le suivre.
-    if (next && next !== location.pathname.replace(siteOrigin().replace(location.origin, ""), "")) {
-      // rester sur la page courante si on y est déjà
     }
     reveal();
   }
@@ -165,7 +150,6 @@
   if (!gate) return;
 
   if (isUnlocked()) {
-    // Page auth avec session déjà ouverte → deep link
     if (location.pathname.indexOf("/auth/") >= 0) {
       afterUnlock();
     } else {

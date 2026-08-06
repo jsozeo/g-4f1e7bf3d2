@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""Génère assets/gate-config.js à partir de .venv/.env (LOGIN / PASSWORD).
+"""Génère assets/gate-config.js à partir de .venv/.env (PASSWORD uniquement).
 
 Le mot de passe en clair ne part JAMAIS en ligne : on publie un hash SHA-256.
-Relancer ce script dès que tu changes LOGIN ou PASSWORD, puis committer
+Relancer ce script dès que tu changes PASSWORD, puis committer
 assets/gate-config.js.
 """
 from __future__ import annotations
 
 import hashlib
 import pathlib
-import re
 
 ENV = pathlib.Path(".venv/.env")
 OUT = pathlib.Path("assets/gate-config.js")
@@ -26,14 +25,11 @@ def load_env(path: pathlib.Path) -> dict[str, str]:
 
 def main() -> None:
     conf = load_env(ENV)
-    login = conf.get("LOGIN", "").strip()
     password = conf.get("PASSWORD", "").strip()
-    if not login or not password:
-        raise SystemExit("LOGIN et PASSWORD doivent être définis dans .venv/.env")
+    if not password:
+        raise SystemExit("PASSWORD doit être défini dans .venv/.env")
 
-    # Hash du couple login|password (insensible à la casse sur le login).
-    material = f"{login.lower()}|{password}".encode("utf-8")
-    digest = hashlib.sha256(material).hexdigest()
+    digest = hashlib.sha256(password.encode("utf-8")).hexdigest()
 
     OUT.write_text(
         "/* Généré par make_gate_config.py — ne pas éditer à la main. */\n"
