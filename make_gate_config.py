@@ -38,12 +38,11 @@ def main() -> None:
     OUT.write_text(
         "/* Généré par make_gate_config.py — ne pas éditer à la main. */\n"
         "window.GATE_CONFIG = {\n"
-        f'  loginHint: {login!r},\n'
         f'  token: "{digest}"\n'
         "};\n",
         encoding="utf-8",
     )
-    print(f"{OUT} mis à jour (login={login!r}, hash={digest[:12]}…)")
+    print(f"{OUT} mis à jour (hash={digest[:12]}…)")
 
 
 if __name__ == "__main__":

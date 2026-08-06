@@ -64,10 +64,14 @@
     var s = document.createElement("style");
     s.id = "gate-styles";
     s.textContent =
-      ".gate-overlay{position:fixed;inset:0;background:rgba(15,35,48,.55);z-index:100;" +
+      /* Tant que le gate est ouvert : masquer TOUT le contenu du site. */
+      "html.auth-pending body > *:not(.gate-overlay){visibility:hidden !important}" +
+      "html.auth-pending .gate-overlay{visibility:visible !important}" +
+      ".gate-overlay{position:fixed;inset:0;z-index:100;" +
+      "background:linear-gradient(135deg,#1c6e8c 0%,#144f64 100%);" +
       "display:flex;align-items:center;justify-content:center;padding:18px}" +
       ".gate-box{background:#fff;border-radius:16px;padding:22px 20px;width:100%;max-width:360px;" +
-      "box-shadow:0 12px 40px rgba(20,45,60,.25);font-family:inherit}" +
+      "box-shadow:0 12px 40px rgba(20,45,60,.35);font-family:inherit}" +
       ".gate-box h2{margin:0 0 6px;font-size:1.2rem;color:#144f64}" +
       ".gate-box p{margin:0 0 14px;color:#55697a;font-size:.92rem}" +
       ".gate-box label{display:block;font-size:.82rem;color:#55697a;margin:10px 0 4px}" +
@@ -89,21 +93,19 @@
       '<h2 id="gate-title">Accès au guide</h2>' +
       "<p>Identifiant et mot de passe de la maison (une seule fois sur ce téléphone).</p>" +
       '<label for="gate-login">Identifiant</label>' +
-      '<input id="gate-login" type="text" autocomplete="username" ' +
-      (cfg.loginHint ? 'value="' + String(cfg.loginHint).replace(/"/g, "") + '" ' : "") +
-      "/>" +
+      '<input id="gate-login" type="text" autocomplete="username" />' +
       '<label for="gate-pass">Mot de passe</label>' +
       '<input id="gate-pass" type="password" autocomplete="current-password" />' +
       '<div class="err" id="gate-err"></div>' +
       '<button type="button" id="gate-ok">Entrer</button>' +
       "</div>";
     document.body.appendChild(overlay);
-    reveal(); // montrer la popup même si le reste était masqué
+    // Ne PAS appeler reveal() ici : le fond du site reste masqué.
 
     var loginEl = overlay.querySelector("#gate-login");
     var passEl = overlay.querySelector("#gate-pass");
     var errEl = overlay.querySelector("#gate-err");
-    passEl.focus();
+    loginEl.focus();
 
     async function tryUnlock() {
       errEl.textContent = "";
