@@ -15,15 +15,15 @@
     <div class="appbar">
       <div>
         <p class="eyebrow" style="margin:0;">Résidence · Signalements</p>
-        <h1 style="font-size:1.3rem;margin:2px 0 0;">🔧 Mes signalements</h1>
+        <h1 style="font-size:1.3rem;margin:2px 0 0;">🔧 Signalements</h1>
       </div>
-      <span class="who" id="who"></span>
+      <span class="who"><a id="out" style="color:#fff;cursor:pointer;">verrouiller</a></span>
     </div>
   </header>
 
   <main class="wrap">
     <div class="toolbar">
-      <span class="grow" id="scope"></span>
+      <span class="grow">Tous les signalements</span>
       <a class="btn" href="case.html">+ Nouveau</a>
     </div>
     <div id="list"><p class="empty">Chargement…</p></div>
@@ -32,22 +32,16 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/supabase-config.js"></script>
+  <script src="../assets/gate-config.js"></script>
   <script src="../assets/auth.js" data-base=".." data-gate="1"></script>
   <script src="supabase-config.js"></script>
   <script src="../assets/nav.js" data-base=".."></script>
   <script src="app.js"></script>
   <script>
     (async function () {
-      const profile = await CaseApp.requireAuth();
-      if (!profile) return;
-      const isAdmin = profile.role === "admin";
-      document.getElementById("who").innerHTML =
-        CaseApp.esc(profile.full_name || "") +
-        (isAdmin ? " · admin" : "") +
-        ' · <a id="out">déconnexion</a>';
-      document.getElementById("out").addEventListener("click", CaseApp.signOut);
-      document.getElementById("scope").textContent =
-        isAdmin ? "Tous les signalements" : "Vos signalements";
+      document.getElementById("out").addEventListener("click", function () {
+        if (window.SiteAuth) SiteAuth.signOut();
+      });
 
       const { data, error } = await CaseApp.listCases();
       const list = document.getElementById("list");
@@ -61,11 +55,13 @@
       }
       list.innerHTML = data.map(function (c) {
         const date = new Date(c.created_at).toLocaleDateString("fr-FR");
+        const who = c.reporter_name ? CaseApp.esc(c.reporter_name) + " · " : "";
         return (
           '<a class="case-item" href="case.html?id=' + c.id + '">' +
             '<div class="row1"><span class="title">' + CaseApp.esc(c.title) + "</span>" +
               CaseApp.statusBadge(c.status) + "</div>" +
-            '<div class="meta">' + (c.location ? "📍 " + CaseApp.esc(c.location) + " · " : "") + date + "</div>" +
+            '<div class="meta">' + who +
+              (c.location ? "📍 " + CaseApp.esc(c.location) + " · " : "") + date + "</div>" +
           "</a>"
         );
       }).join("");

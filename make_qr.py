@@ -1,12 +1,11 @@
-"""Génère les QR codes du guide.
+"""Génère les QR codes du guide (lien direct vers les fiches).
 
-Chaque QR pointe vers la page d'auth en emportant la fiche cible (deep link) :
-  /auth/login.html?next=/notices/….html
-
-Si l'utilisateur est déjà connecté sur ce téléphone, la page d'auth le
-renvoie immédiatement vers la fiche — sans nouvel email.
+L'accès est protégé par la popup login/mdp sur chaque page.
+Si l'utilisateur est déjà déverrouillé sur le téléphone, la fiche s'ouvre
+directement.
 """
 from pathlib import Path
+from urllib.parse import quote
 
 import qrcode
 from qrcode.constants import ERROR_CORRECT_M
@@ -15,28 +14,22 @@ BASE = "https://jsozeo.github.io/g-4f1e7bf3d2"
 OUT = Path("qrcodes")
 OUT.mkdir(exist_ok=True)
 
-# Cible = chemin interne (deep link). Le QR encode toujours /auth/login.html?next=…
+# Lien direct ; la popup s'affiche seulement si le téléphone n'est pas encore déverrouillé.
 TARGETS = {
-    "accueil": "/index.html",
-    "gestion-dechets": "/notices/gestion-dechets.html",
-    "plan-maison": "/notices/plan-maison.html",
-    "ouverture-maison": "/notices/ouverture-maison.html",
-    "fermeture-maison": "/notices/fermeture-maison.html",
-    "gaz": "/notices/gaz.html",
-    "poele-bois": "/notices/poele-bois.html",
-    "signalements": "/app/index.html",
+    "accueil": f"{BASE}/",
+    "gestion-dechets": f"{BASE}/notices/gestion-dechets.html",
+    "plan-maison": f"{BASE}/notices/plan-maison.html",
+    "ouverture-maison": f"{BASE}/notices/ouverture-maison.html",
+    "fermeture-maison": f"{BASE}/notices/fermeture-maison.html",
+    "gaz": f"{BASE}/notices/gaz.html",
+    "poele-bois": f"{BASE}/notices/poele-bois.html",
+    "signalements": f"{BASE}/app/index.html",
 }
 
 FILL = "#144f64"
 BACK = "#ffffff"
 
-
-def auth_url(next_path: str) -> str:
-    return f"{BASE}/auth/login.html?next={next_path}"
-
-
-for name, next_path in TARGETS.items():
-    url = auth_url(next_path)
+for name, url in TARGETS.items():
     qr = qrcode.QRCode(error_correction=ERROR_CORRECT_M, box_size=12, border=3)
     qr.add_data(url)
     qr.make(fit=True)

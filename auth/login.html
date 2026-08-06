@@ -7,8 +7,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
   <title>Connexion — Guide de la maison</title>
   <link rel="stylesheet" href="../assets/style.css" />
-  <link rel="stylesheet" href="../app/app.css" />
-  <style>html.auth-pending body { visibility: hidden; }</style>
+  <style>html.auth-pending body{visibility:hidden}</style>
 </head>
 <body>
   <header class="topbar">
@@ -17,101 +16,12 @@
       <h1>🔐 Connexion</h1>
     </div>
   </header>
-
   <main class="wrap">
-    <div class="panel" style="margin-top:22px;max-width:420px;margin-inline:auto;">
-      <p class="lead" style="color:var(--ink-soft);margin-top:0;" id="nextHint">
-        Identifie-toi pour ouvrir le guide.
-      </p>
-
-      <form id="form">
-        <div class="field">
-          <label for="email">Adresse email</label>
-          <input id="email" type="email" required autocomplete="username" placeholder="toi@exemple.com" />
-        </div>
-        <div class="field">
-          <label for="password">Mot de passe</label>
-          <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" />
-        </div>
-        <button class="btn block" id="btnPwd" type="submit">Se connecter</button>
-      </form>
-
-      <p style="text-align:center;color:var(--ink-soft);font-size:0.85rem;margin:16px 0 10px;">ou</p>
-
-      <button class="btn secondary block" id="btnMagic" type="button">Recevoir un lien magique</button>
-
-      <div id="msg"></div>
-    </div>
+    <p style="text-align:center;color:var(--ink-soft);margin-top:40px;">
+      Saisis l'identifiant et le mot de passe de la maison…
+    </p>
   </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/supabase-config.js"></script>
-  <script src="../assets/auth.js" data-base=".."></script>
-  <script>
-    (async function () {
-      var params = new URLSearchParams(location.search);
-      var next = SiteAuth.sanitizeNext(params.get("next") || "/index.html");
-      var dest = SiteAuth.siteOrigin() + next;
-
-      var hint = document.getElementById("nextHint");
-      if (params.get("next")) {
-        hint.innerHTML = "Après connexion, tu seras redirigé vers la fiche demandée.";
-      }
-
-      // Magic link : Supabase dépose la session (detectSessionInUrl), puis on enchaîne.
-      var session = await SiteAuth.getSession();
-      if (session) {
-        location.replace(dest);
-        return;
-      }
-      SiteAuth.reveal();
-
-      var msg = document.getElementById("msg");
-      var form = document.getElementById("form");
-      var btnPwd = document.getElementById("btnPwd");
-      var btnMagic = document.getElementById("btnMagic");
-
-      function show(html, cls) {
-        msg.innerHTML = '<div class="msg ' + cls + '">' + html + "</div>";
-      }
-
-      form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        var email = document.getElementById("email").value.trim();
-        var password = document.getElementById("password").value;
-        if (!password) {
-          show("Saisis ton mot de passe, ou utilise le lien magique.", "err");
-          return;
-        }
-        btnPwd.disabled = true;
-        var res = await SiteAuth.signInWithPassword(email, password);
-        if (res.error) {
-          show(res.error.message, "err");
-          btnPwd.disabled = false;
-          return;
-        }
-        location.replace(dest);
-      });
-
-      btnMagic.addEventListener("click", async function () {
-        var email = document.getElementById("email").value.trim();
-        if (!email) {
-          show("Indique d'abord ton adresse email.", "err");
-          return;
-        }
-        btnMagic.disabled = true;
-        var res = await SiteAuth.signInWithMagicLink(email, next);
-        if (res.error) {
-          show(res.error.message, "err");
-          btnMagic.disabled = false;
-          return;
-        }
-        show(
-          "Lien envoyé. Ouvre-le <b>depuis ce téléphone</b> : tu arriveras directement sur la fiche scannée.",
-          "ok"
-        );
-      });
-    })();
-  </script>
+  <script src="../assets/gate-config.js"></script>
+  <script src="../assets/auth.js" data-base=".." data-gate="1"></script>
 </body>
 </html>

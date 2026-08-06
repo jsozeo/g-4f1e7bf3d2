@@ -26,6 +26,10 @@
 
     <div class="panel">
       <div class="field">
+        <label for="reporter">Ton prénom / qui signale *</label>
+        <input id="reporter" type="text" required placeholder="Ex : Marie" />
+      </div>
+      <div class="field">
         <label for="title">Titre du dysfonctionnement *</label>
         <input id="title" type="text" required placeholder="Ex : Fuite sous l'évier de la cuisine" />
       </div>
@@ -48,9 +52,9 @@
           <option value="rejete">Rejeté</option>
         </select>
       </div>
-      <div class="field" id="statusReadonly" style="display:none;">
-        <label>Statut</label>
-        <div id="statusBadge"></div>
+      <div class="field" id="statusByField" style="display:none;">
+        <label for="statusBy">Qui change le statut ? *</label>
+        <input id="statusBy" type="text" placeholder="Ex : Jean" />
       </div>
 
       <div class="field">
@@ -69,6 +73,10 @@
       <h2 style="margin-top:0;font-size:1.05rem;">Historique &amp; commentaires</h2>
       <div id="events"></div>
       <div class="field" style="margin-top:12px;">
+        <label for="commentAuthor">Ton prénom</label>
+        <input id="commentAuthor" type="text" placeholder="Ex : Marie" />
+      </div>
+      <div class="field">
         <textarea id="comment" placeholder="Ajouter un commentaire…" style="min-height:70px;"></textarea>
       </div>
       <button class="btn secondary" id="addComment" type="button">Commenter</button>
@@ -79,25 +87,31 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/supabase-config.js"></script>
+  <script src="../assets/gate-config.js"></script>
   <script src="../assets/auth.js" data-base=".." data-gate="1"></script>
   <script src="supabase-config.js"></script>
   <script src="../assets/nav.js" data-base=".."></script>
   <script src="app.js"></script>
   <script>
     (async function () {
-      const profile = await CaseApp.requireAuth();
-      if (!profile) return;
-      const isAdmin = profile.role === "admin";
       const params = new URLSearchParams(location.search);
       const id = params.get("id");
       const msg = document.getElementById("msg");
       const show = (html, cls) => { msg.innerHTML = '<div class="msg ' + cls + '">' + html + "</div>"; };
 
+      const $reporter = document.getElementById("reporter");
       const $title = document.getElementById("title");
       const $loc = document.getElementById("location");
       const $desc = document.getElementById("description");
       const $status = document.getElementById("status");
+      const $statusBy = document.getElementById("statusBy");
       const $photo = document.getElementById("photo");
+      const $commentAuthor = document.getElementById("commentAuthor");
+
+      const saved = CaseApp.getSavedName();
+      $reporter.value = saved;
+      $statusBy.value = saved;
+      $commentAuthor.value = saved;
 
       let current = null;
 
@@ -112,37 +126,47 @@
       async function renderEvents() {
         const { data } = await CaseApp.listEvents(id);
         const box = document.getElementById("events");
-        if (!data || !data.length) { box.innerHTML = '<p class="empty" style="padding:12px;">Aucun événement.</p>'; return; }
+        if (!data || !data.length) {
+          box.innerHTML = '<p class="empty" style="padding:12px;">Aucun événement.</p>';
+          return;
+        }
         box.innerHTML = data.map(function (e) {
           const ts = new Date(e.created_at).toLocaleString("fr-FR");
-          return '<div class="event ' + e.type + '"><div>' + CaseApp.esc(e.body || "") + '</div><div class="ts">' + ts + "</div></div>";
+          const who = e.author_name ? CaseApp.esc(e.author_name) + " · " : "";
+          return '<div class="event ' + e.type + '"><div>' + CaseApp.esc(e.body || "") +
+            '</div><div class="ts">' + who + ts + "</div></div>";
         }).join("");
       }
 
       if (id) {
         document.getElementById("pageTitle").textContent = "🔧 Signalement";
         const { data, error } = await CaseApp.getCase(id);
-        if (error || !data) { show("Introuvable ou accès refusé.", "err"); return; }
+        if (error || !data) { show("Introuvable.", "err"); return; }
         current = data;
         $title.value = data.title || "";
         $loc.value = data.location || "";
         $desc.value = data.description || "";
-        if (isAdmin) {
-          document.getElementById("statusField").style.display = "";
-          $status.value = data.status;
-        } else {
-          document.getElementById("statusReadonly").style.display = "";
-          document.getElementById("statusBadge").innerHTML = CaseApp.statusBadge(data.status);
-        }
-        if (isAdmin) document.getElementById("del").style.display = "";
+        $reporter.value = data.reporter_name || saved;
+        $status.value = data.status;
+        document.getElementById("statusField").style.display = "";
+        document.getElementById("statusByField").style.display = "";
+        document.getElementById("del").style.display = "";
         document.getElementById("history").style.display = "";
         await refreshPhoto();
         await renderEvents();
       }
 
       document.getElementById("save").addEventListener("click", async function () {
-        const fields = { title: $title.value.trim(), location: $loc.value.trim(), description: $desc.value.trim() };
+        const reporter = $reporter.value.trim();
+        const fields = {
+          title: $title.value.trim(),
+          location: $loc.value.trim(),
+          description: $desc.value.trim(),
+          reporter_name: reporter,
+        };
         if (!fields.title) { show("Le titre est obligatoire.", "err"); return; }
+        if (!reporter) { show("Indique qui signale (prénom).", "err"); return; }
+
         try {
           if (!id) {
             const { data, error } = await CaseApp.createCase(fields);
@@ -150,10 +174,23 @@
             if ($photo.files[0]) await CaseApp.uploadPhoto(data.id, $photo.files[0]);
             location.href = "case.html?id=" + data.id;
           } else {
-            if (isAdmin && $status.value !== current.status) fields.status = $status.value;
+            if ($status.value !== current.status) {
+              const by = $statusBy.value.trim();
+              if (!by) { show("Indique qui change le statut.", "err"); return; }
+              fields.status = $status.value;
+              fields.status_changed_by = by;
+            }
             const { error } = await CaseApp.updateCase(id, fields);
             if (error) throw error;
-            if ($photo.files[0]) { await CaseApp.uploadPhoto(id, $photo.files[0]); const { data } = await CaseApp.getCase(id); current = data; await refreshPhoto(); }
+            if ($photo.files[0]) {
+              await CaseApp.uploadPhoto(id, $photo.files[0]);
+              const { data } = await CaseApp.getCase(id);
+              current = data;
+              await refreshPhoto();
+            } else {
+              const { data } = await CaseApp.getCase(id);
+              current = data;
+            }
             await renderEvents();
             show("Enregistré.", "ok");
           }
@@ -169,8 +206,10 @@
 
       document.getElementById("addComment").addEventListener("click", async function () {
         const body = document.getElementById("comment").value.trim();
+        const author = $commentAuthor.value.trim();
         if (!body) return;
-        const { error } = await CaseApp.addComment(id, body);
+        if (!author) { show("Indique ton prénom pour commenter.", "err"); return; }
+        const { error } = await CaseApp.addComment(id, body, author);
         if (error) { show(CaseApp.esc(error.message), "err"); return; }
         document.getElementById("comment").value = "";
         await renderEvents();
