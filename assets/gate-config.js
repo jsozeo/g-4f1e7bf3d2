@@ -1,4 +1,4 @@
 /* Généré par make_gate_config.py — ne pas éditer à la main. */
 window.GATE_CONFIG = {
-  token: "b72a896e5c8ea9b978c58aa4798b71d7d5f06f2de2c4c687f18748e09b920979"
+  token: "f398b7ebefaf11aeb8fa987f1d07cae79c25dd331544f11befd9d7967cd842f6"
 };

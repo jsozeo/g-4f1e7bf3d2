@@ -1,6 +1,6 @@
-/* Accès familial : popup mot de passe seule, sans comptes.
+/* Accès familial : popup login + mdp (champs vides), sans comptes Supabase.
  *
- * - Mot de passe dans .venv/.env → hash publié via make_gate_config.py
+ * - Identifiants dans .venv/.env → hash publié via make_gate_config.py
  * - Session dans localStorage : un seul déverrouillage pour tous les QR
  */
 (function () {
@@ -8,7 +8,7 @@
 
   var script = document.currentScript;
   var gate = script && script.dataset.gate === "1";
-  var STORAGE_KEY = "micote_gate_v2";
+  var STORAGE_KEY = "micote_gate_v3";
 
   function siteOrigin() {
     var path = location.pathname;
@@ -89,29 +89,36 @@
     overlay.innerHTML =
       '<div class="gate-box" role="dialog" aria-modal="true" aria-labelledby="gate-title">' +
       '<h2 id="gate-title">Accès au guide</h2>' +
-      "<p>Mot de passe de la maison (une seule fois sur ce téléphone).</p>" +
+      "<p>Identifiant et mot de passe de la maison (une seule fois sur ce téléphone).</p>" +
+      '<label for="gate-login">Identifiant</label>' +
+      '<input id="gate-login" type="text" name="micote-login" value="" autocomplete="off" autocapitalize="off" spellcheck="false" />' +
       '<label for="gate-pass">Mot de passe</label>' +
-      '<input id="gate-pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" />' +
+      '<input id="gate-pass" type="password" name="micote-pass" value="" autocomplete="new-password" />' +
       '<div class="err" id="gate-err"></div>' +
       '<button type="button" id="gate-ok">Entrer</button>' +
       "</div>";
     document.body.appendChild(overlay);
 
+    var loginEl = overlay.querySelector("#gate-login");
     var passEl = overlay.querySelector("#gate-pass");
     var errEl = overlay.querySelector("#gate-err");
-    passEl.focus();
+    loginEl.value = "";
+    passEl.value = "";
+    loginEl.focus();
 
     async function tryUnlock() {
       errEl.textContent = "";
+      var login = (loginEl.value || "").trim().toLowerCase();
       var pass = passEl.value || "";
-      if (!pass) {
-        errEl.textContent = "Saisis le mot de passe.";
+      if (!login || !pass) {
+        errEl.textContent = "Renseigne les deux champs.";
         return;
       }
-      var token = await sha256Hex(pass);
+      var token = await sha256Hex(login + "|" + pass);
       if (!cfg.token || token !== cfg.token) {
-        errEl.textContent = "Mot de passe incorrect.";
-        passEl.select();
+        errEl.textContent = "Identifiant ou mot de passe incorrect.";
+        passEl.value = "";
+        passEl.focus();
         return;
       }
       unlock(token);
@@ -122,6 +129,9 @@
     overlay.querySelector("#gate-ok").addEventListener("click", tryUnlock);
     passEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter") tryUnlock();
+    });
+    loginEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") passEl.focus();
     });
   }
 
